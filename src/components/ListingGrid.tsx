@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Heart, Wifi, Wind, UtensilsCrossed, Sofa, Car, Tv } from 'lucide-react';
+import { Star, Heart, Wifi, Wind, Droplets, Home } from 'lucide-react';
 import { listings } from '../data/listings';
 
 interface ListingCardProps {
@@ -12,6 +12,7 @@ interface ListingCardProps {
     amenities: string[];
     price: number;
     rating: number;
+    rules: string[];
     isFavorite?: boolean;
     isTopRated?: boolean;
   };
@@ -19,12 +20,11 @@ interface ListingCardProps {
 
 const getAmenityIcon = (amenity: string) => {
   switch (amenity) {
-    case 'WiFi': return <Wifi size={16} />;
     case 'AC': return <Wind size={16} />;
-    case 'Food': return <UtensilsCrossed size={16} />;
-    case 'Furnished': return <Sofa size={16} />;
-    case 'Parking': return <Car size={16} />;
-    case 'TV': return <Tv size={16} />;
+    case 'Furnished': return <Home size={16} />;
+    case 'WiFi': return <Wifi size={16} />;
+    case '24/7 Water': return <Droplets size={16} />;
+    case 'Independent': return <Home size={16} />;
     default: return null;
   }
 };
@@ -47,11 +47,6 @@ const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             className={listing.isFavorite ? "text-[#FF5A5F]" : ""}
           />
         </button>
-        {listing.isTopRated && (
-          <div className="absolute top-3 left-3 bg-white/80 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-semibold">
-            Top Rated
-          </div>
-        )}
       </div>
       
       <div className="mt-3">
@@ -74,6 +69,10 @@ const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
           ))}
         </div>
         
+        <div className="mt-2 text-sm text-gray-500">
+          <strong>Rules:</strong> {listing.rules.join(', ')}
+        </div>
+        
         <p className="mt-2 font-medium">
           ₹{listing.price.toLocaleString('en-IN')} <span className="font-normal">/ month</span>
         </p>
@@ -94,7 +93,7 @@ const ListingGrid: React.FC = () => {
         <p className="text-gray-600 mt-1">Showing {listings.length} properties in Bhilai</p>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {listings.map(listing => (
           <ListingCard key={listing.id} listing={listing} />
         ))}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { SlidersHorizontal, Wifi, Wind, UtensilsCrossed, Sofa, Car, Tv, Home, Droplets } from 'lucide-react';
+import { SlidersHorizontal, Wifi, Wind, Droplets, Home } from 'lucide-react';
 
 interface FilterChipProps {
   label: string;
@@ -20,14 +20,11 @@ const FilterBar: React.FC = () => {
   return (
     <div className="container-pad sticky top-[80px] z-10 bg-white py-4 border-b">
       <div className="flex items-center gap-3 overflow-x-auto hide-scrollbar">
-        <FilterChip icon={<Wifi size={16} />} label="WiFi" />
         <FilterChip icon={<Wind size={16} />} label="AC" />
-        <FilterChip icon={<UtensilsCrossed size={16} />} label="Food" active />
-        <FilterChip icon={<Sofa size={16} />} label="Furnished" />
-        <FilterChip icon={<Car size={16} />} label="Parking" />
-        <FilterChip icon={<Tv size={16} />} label="TV" />
-        <FilterChip icon={<Home size={16} />} label="Independent" />
+        <FilterChip icon={<Home size={16} />} label="Furnished" />
+        <FilterChip icon={<Wifi size={16} />} label="WiFi" active />
         <FilterChip icon={<Droplets size={16} />} label="24/7 Water" />
+        <FilterChip icon={<Home size={16} />} label="Independent" />
         
         <div className="ml-auto flex items-center gap-3">
           <button className="flex items-center gap-2 px-4 py-2 border rounded-full text-sm font-medium">
@@ -40,10 +37,10 @@ const FilterBar: React.FC = () => {
       <div className="mt-4 flex items-center gap-4">
         <div className="flex-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">Price Range</label>
-          <input type="range" className="w-full" min="1000" max="50000" step="500" />
+          <input type="range" className="w-full" min="5000" max="30000" step="500" />
           <div className="flex justify-between text-sm text-gray-500 mt-1">
-            <span>₹1,000</span>
-            <span>₹20,000</span>
+            <span>₹5,000</span>
+            <span>₹30,000</span>
           </div>
         </div>
         
