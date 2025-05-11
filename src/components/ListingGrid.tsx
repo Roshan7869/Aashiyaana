@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Heart } from 'lucide-react';
+import { Star, Heart, Wifi, Wind, UtensilsCrossed, Sofa, Car, Tv } from 'lucide-react';
 import { listings } from '../data/listings';
 
 interface ListingCardProps {
@@ -9,13 +9,25 @@ interface ListingCardProps {
     title: string;
     location: string;
     distance: string;
-    dates: string;
+    amenities: string[];
     price: number;
     rating: number;
     isFavorite?: boolean;
     isTopRated?: boolean;
   };
 }
+
+const getAmenityIcon = (amenity: string) => {
+  switch (amenity) {
+    case 'WiFi': return <Wifi size={16} />;
+    case 'AC': return <Wind size={16} />;
+    case 'Food': return <UtensilsCrossed size={16} />;
+    case 'Furnished': return <Sofa size={16} />;
+    case 'Parking': return <Car size={16} />;
+    case 'TV': return <Tv size={16} />;
+    default: return null;
+  }
+};
 
 const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
   return (
@@ -53,10 +65,22 @@ const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
         
         <p className="text-sm text-gray-500">{listing.location}</p>
         <p className="text-sm text-gray-500">{listing.distance}</p>
-        <p className="text-sm text-gray-500">{listing.dates}</p>
-        <p className="mt-1 font-medium">
-          ${listing.price} <span className="font-normal">night</span>
+        
+        <div className="flex gap-2 mt-2">
+          {listing.amenities.map((amenity, index) => (
+            <span key={index} className="text-gray-600" title={amenity}>
+              {getAmenityIcon(amenity)}
+            </span>
+          ))}
+        </div>
+        
+        <p className="mt-2 font-medium">
+          ₹{listing.price.toLocaleString('en-IN')} <span className="font-normal">/ month</span>
         </p>
+        
+        <button className="mt-3 w-full bg-[#FF5A5F] text-white py-2 rounded-lg hover:bg-[#E00B41] transition-colors">
+          Book Now
+        </button>
       </div>
     </div>
   );
@@ -65,7 +89,12 @@ const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
 const ListingGrid: React.FC = () => {
   return (
     <div className="container-pad py-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Best PGs in Bhilai</h1>
+        <p className="text-gray-600 mt-1">Showing {listings.length} properties in Bhilai</p>
+      </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
         {listings.map(listing => (
           <ListingCard key={listing.id} listing={listing} />
         ))}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Calendar, Users } from 'lucide-react';
+import { Search, Building2, Users } from 'lucide-react';
 
 interface SearchBarProps {
   active: boolean;
@@ -7,6 +7,13 @@ interface SearchBarProps {
 
 const SearchBar: React.FC<SearchBarProps> = ({ active }) => {
   const [activeTab, setActiveTab] = useState<string | null>(null);
+  const [location, setLocation] = useState('');
+  const suggestions = [
+    'Bilai Sector 5',
+    'Bilai City Center',
+    'Bilai Sector 6',
+    'Shankar Nagar'
+  ].filter(s => s.toLowerCase().includes(location.toLowerCase()));
   
   const handleTabClick = (tab: string) => {
     setActiveTab(activeTab === tab ? null : tab);
@@ -21,52 +28,47 @@ const SearchBar: React.FC<SearchBarProps> = ({ active }) => {
           className={`relative flex flex-col flex-grow py-3 px-6 cursor-pointer ${activeTab === 'location' ? 'bg-gray-100' : ''}`}
           onClick={() => handleTabClick('location')}
         >
-          <label className="text-xs font-bold">Where</label>
+          <label className="text-xs font-bold">Location</label>
           <input 
             className="search-input text-sm mt-1" 
-            placeholder="Search destinations" 
+            placeholder="Search in Bilai"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
           />
-          <div className={`absolute inset-0 flex items-center justify-center top-auto h-8 pointer-events-none ${activeTab !== 'location' ? 'opacity-0' : 'opacity-100'} transition-opacity`}>
-            <div className="h-full w-px bg-gray-300 absolute right-0"></div>
-          </div>
+          {activeTab === 'location' && location && (
+            <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-lg mt-1 z-50">
+              {suggestions.map((suggestion, index) => (
+                <div 
+                  key={index}
+                  className="px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                  onClick={() => setLocation(suggestion)}
+                >
+                  {suggestion}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         
         <div 
-          className={`relative flex flex-col py-3 px-6 cursor-pointer ${activeTab === 'check-in' ? 'bg-gray-100' : ''}`}
-          onClick={() => handleTabClick('check-in')}
+          className={`relative flex flex-col py-3 px-6 cursor-pointer ${activeTab === 'type' ? 'bg-gray-100' : ''}`}
+          onClick={() => handleTabClick('type')}
         >
-          <label className="text-xs font-bold">Check in</label>
+          <label className="text-xs font-bold">Property Type</label>
           <div className="flex items-center gap-1 mt-1">
-            <Calendar size={14} />
-            <span className="text-sm">Add dates</span>
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center top-auto h-8 pointer-events-none">
-            <div className="h-full w-px bg-gray-300 absolute right-0"></div>
+            <Building2 size={14} />
+            <span className="text-sm">PG/Hostel</span>
           </div>
         </div>
         
         <div 
-          className={`relative flex flex-col py-3 px-6 cursor-pointer ${activeTab === 'check-out' ? 'bg-gray-100' : ''}`}
-          onClick={() => handleTabClick('check-out')}
+          className={`relative flex flex-col py-3 px-6 cursor-pointer ${activeTab === 'occupancy' ? 'bg-gray-100' : ''}`}
+          onClick={() => handleTabClick('occupancy')}
         >
-          <label className="text-xs font-bold">Check out</label>
-          <div className="flex items-center gap-1 mt-1">
-            <Calendar size={14} />
-            <span className="text-sm">Add dates</span>
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center top-auto h-8 pointer-events-none">
-            <div className="h-full w-px bg-gray-300 absolute right-0"></div>
-          </div>
-        </div>
-        
-        <div 
-          className={`relative flex flex-col py-3 px-6 cursor-pointer ${activeTab === 'guests' ? 'bg-gray-100' : ''}`}
-          onClick={() => handleTabClick('guests')}
-        >
-          <label className="text-xs font-bold">Who</label>
+          <label className="text-xs font-bold">Occupancy</label>
           <div className="flex items-center gap-1 mt-1">
             <Users size={14} />
-            <span className="text-sm">Add guests</span>
+            <span className="text-sm">Single/Shared</span>
           </div>
         </div>
         
@@ -79,5 +81,3 @@ const SearchBar: React.FC<SearchBarProps> = ({ active }) => {
     </div>
   );
 };
-
-export default SearchBar;
