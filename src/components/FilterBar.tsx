@@ -43,7 +43,7 @@ const FilterBar: React.FC = () => {
           <input type="range" className="w-full" min="1000" max="50000" step="500" />
           <div className="flex justify-between text-sm text-gray-500 mt-1">
             <span>₹1,000</span>
-            <span>₹50,000</span>
+            <span>₹20,000</span>
           </div>
         </div>
         
