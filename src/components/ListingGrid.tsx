@@ -1,6 +1,13 @@
 import React from 'react';
-import { Star, Heart, Wifi, Wind, Droplets, Home } from 'lucide-react';
+import { Star, Heart, Wifi, Wind, Droplets, Home, Fan } from 'lucide-react';
 import { listings } from '../data/listings';
+
+interface Filters {
+  amenities: string[];
+  priceRange: number;
+  selectedArea: string;
+  propertyTypes: string[];
+}
 
 interface ListingCardProps {
   listing: {
@@ -25,6 +32,7 @@ const getAmenityIcon = (amenity: string) => {
     case 'WiFi': return <Wifi size={16} />;
     case '24/7 Water': return <Droplets size={16} />;
     case 'Independent': return <Home size={16} />;
+    case 'Air Water Cooler': return <Fan size={16} />;
     default: return null;
   }
 };
@@ -85,16 +93,43 @@ const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
   );
 };
 
-const ListingGrid: React.FC = () => {
+interface ListingGridProps {
+  filters: Filters;
+}
+
+const ListingGrid: React.FC<ListingGridProps> = ({ filters }) => {
+  const filteredListings = listings.filter(listing => {
+    // Filter by price
+    if (listing.price > filters.priceRange) return false;
+
+    // Filter by area
+    if (filters.selectedArea !== "All Areas" && listing.location !== filters.selectedArea) return false;
+
+    // Filter by amenities
+    if (filters.amenities.length > 0) {
+      const hasAllAmenities = filters.amenities.every(amenity => 
+        listing.amenities.includes(amenity)
+      );
+      if (!hasAllAmenities) return false;
+    }
+
+    // Filter by property type
+    if (filters.propertyTypes.length > 0 && !filters.propertyTypes.some(type => listing.title.includes(type))) {
+      return false;
+    }
+
+    return true;
+  });
+
   return (
     <div className="container-pad py-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Best PGs in Bhilai</h1>
-        <p className="text-gray-600 mt-1">Showing {listings.length} properties in Bhilai</p>
+        <p className="text-gray-600 mt-1">Showing {filteredListings.length} properties in Bhilai</p>
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {listings.map(listing => (
+        {filteredListings.map(listing => (
           <ListingCard key={listing.id} listing={listing} />
         ))}
       </div>

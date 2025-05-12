@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SlidersHorizontal, Wifi, Wind, Droplets, Home } from 'lucide-react';
+import { SlidersHorizontal, Wifi, Wind, Droplets, Home, Fan } from 'lucide-react';
 import { areas } from '../data/listings';
 
 interface FilterChipProps {
@@ -23,26 +23,67 @@ const FilterChip: React.FC<FilterChipProps> = ({ label, icon, active, onClick })
   );
 };
 
-const FilterBar: React.FC = () => {
+interface FilterBarProps {
+  onFiltersChange: (filters: {
+    amenities: string[];
+    priceRange: number;
+    selectedArea: string;
+    propertyTypes: string[];
+  }) => void;
+}
+
+const FilterBar: React.FC<FilterBarProps> = ({ onFiltersChange }) => {
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<number>(30000);
   const [selectedArea, setSelectedArea] = useState<string>("All Areas");
   const [propertyTypes, setPropertyTypes] = useState<string[]>([]);
 
   const toggleAmenity = (amenity: string) => {
-    setSelectedAmenities(prev => 
-      prev.includes(amenity) 
-        ? prev.filter(a => a !== amenity)
-        : [...prev, amenity]
-    );
+    const newAmenities = selectedAmenities.includes(amenity) 
+      ? selectedAmenities.filter(a => a !== amenity)
+      : [...selectedAmenities, amenity];
+    
+    setSelectedAmenities(newAmenities);
+    onFiltersChange({
+      amenities: newAmenities,
+      priceRange,
+      selectedArea,
+      propertyTypes
+    });
   };
 
   const togglePropertyType = (type: string) => {
-    setPropertyTypes(prev =>
-      prev.includes(type)
-        ? prev.filter(t => t !== type)
-        : [...prev, type]
-    );
+    const newTypes = propertyTypes.includes(type)
+      ? propertyTypes.filter(t => t !== type)
+      : [...propertyTypes, type];
+    
+    setPropertyTypes(newTypes);
+    onFiltersChange({
+      amenities: selectedAmenities,
+      priceRange,
+      selectedArea,
+      propertyTypes: newTypes
+    });
+  };
+
+  const handlePriceChange = (value: number) => {
+    setPriceRange(value);
+    onFiltersChange({
+      amenities: selectedAmenities,
+      priceRange: value,
+      selectedArea,
+      propertyTypes
+    });
+  };
+
+  const handleAreaChange = (area: string) => {
+    setSelectedArea(area);
+    onFiltersChange({
+      amenities: selectedAmenities,
+      priceRange,
+      selectedArea: area,
+      propertyTypes
+    });
   };
 
   return (
@@ -78,6 +119,12 @@ const FilterBar: React.FC = () => {
           active={selectedAmenities.includes('Independent')}
           onClick={() => toggleAmenity('Independent')}
         />
+        <FilterChip 
+          icon={<Fan size={16} />} 
+          label="Air Water Cooler" 
+          active={selectedAmenities.includes('Air Water Cooler')}
+          onClick={() => toggleAmenity('Air Water Cooler')}
+        />
         
         <div className="ml-auto flex items-center gap-3">
           <button className="flex items-center gap-2 px-4 py-2 border rounded-full text-sm font-medium">
@@ -93,14 +140,14 @@ const FilterBar: React.FC = () => {
           <input 
             type="range" 
             className="w-full" 
-            min="5000" 
+            min="1000" 
             max="30000" 
             step="500" 
             value={priceRange}
-            onChange={(e) => setPriceRange(Number(e.target.value))}
+            onChange={(e) => handlePriceChange(Number(e.target.value))}
           />
           <div className="flex justify-between text-sm text-gray-500 mt-1">
-            <span>₹5,000</span>
+            <span>₹1,000</span>
             <span>₹{priceRange.toLocaleString('en-IN')}</span>
           </div>
         </div>
@@ -110,7 +157,7 @@ const FilterBar: React.FC = () => {
           <select 
             className="w-full rounded-md border-gray-300 shadow-sm"
             value={selectedArea}
-            onChange={(e) => setSelectedArea(e.target.value)}
+            onChange={(e) => handleAreaChange(e.target.value)}
           >
             {areas.map(area => (
               <option key={area} value={area}>{area}</option>
