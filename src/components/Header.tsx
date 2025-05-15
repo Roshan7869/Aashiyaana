@@ -17,82 +17,43 @@ const Header: React.FC<HeaderProps> = ({ scrolled, toggleMobileMenu }) => {
         scrolled ? 'bg-white shadow-md' : 'bg-transparent'
       }`}
     >
-      {/* Utility Navigation */}
-      <div className="hidden lg:block border-b border-gray-100">
-        <div className="container-pad flex justify-end items-center h-10">
-          <div className="flex items-center gap-4 text-sm">
-            <button className="hover:underline">List your space</button>
-            <button className="flex items-center gap-1 hover:underline">
-              <Globe size={16} />
-              <span>English (US)</span>
-            </button>
-            <button className="hover:underline">Help</button>
-          </div>
-        </div>
-      </div>
-      
-      {/* Main Navigation */}
-      <div className="container-pad py-4">
+      <div className="container-pad py-3">
         <div className="flex items-center justify-between">
-          {/* Logo */}
           <div className="flex-shrink-0">
             <Logo />
           </div>
           
-          {/* Desktop Navigation */}
-          <div className="hidden md:block flex-grow mx-6">
-            <div className="flex justify-center">
-              <div className="flex border rounded-full shadow-sm overflow-hidden bg-white">
-                <button 
-                  className={`px-4 py-2 ${isSearchActive ? 'border-b-2 border-primary' : ''}`}
-                  onClick={() => setIsSearchActive(true)}
-                >
-                  Stays
-                </button>
-                <button 
-                  className={`px-4 py-2 ${!isSearchActive ? 'border-b-2 border-primary' : ''}`}
-                  onClick={() => setIsSearchActive(false)}
-                >
-                  Experiences
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          {/* Search Bar Button (Mobile) */}
-          <div className="md:hidden flex-grow mx-4">
+          <div className="md:hidden flex-grow mx-3">
             <button 
-              className="w-full flex items-center justify-between px-4 py-2 rounded-full shadow-md border bg-white"
+              className="w-full flex items-center justify-between px-3 py-1.5 rounded-full shadow-sm border bg-white"
               onClick={() => setIsSearchActive(true)}
             >
               <div className="flex items-center">
-                <Search size={18} strokeWidth={2.5} />
-                <div className="ml-4 text-left">
-                  <div className="text-sm font-medium">Where to?</div>
+                <Search size={16} strokeWidth={2.5} />
+                <div className="ml-2 text-left">
+                  <div className="text-xs font-medium">Where to?</div>
                   <div className="text-xs text-gray-500">Anywhere · Any week</div>
                 </div>
               </div>
             </button>
           </div>
           
-          {/* User Navigation */}
-          <div className="flex items-center gap-2">
-            <button className="hidden md:flex items-center rounded-full border px-3 py-1 hover:shadow-md transition-shadow">
-              <Globe size={16} className="mr-1" />
-              <span className="text-sm">EN</span>
+          <div className="flex items-center gap-1.5">
+            <button className="hidden md:flex items-center rounded-full border px-2 py-1 hover:shadow-sm transition-shadow">
+              <Globe size={14} className="mr-1" />
+              <span className="text-xs">EN</span>
             </button>
             <button 
-              className="flex items-center gap-2 rounded-full border p-2 hover:shadow-md transition-shadow"
+              className="flex items-center gap-1.5 rounded-full border p-1.5 hover:shadow-sm transition-shadow"
               onClick={toggleMobileMenu}
             >
-              <Menu size={18} />
-              <User size={18} className="text-gray-600" />
+              <Menu size={16} />
+              <User size={16} className="text-gray-600" />
             </button>
           </div>
         </div>
         
-        {/* Expanded Search Bar (Desktop) */}
-        <div className="hidden md:block mt-4">
+        <div className="hidden md:block mt-3">
           <SearchBar active={isSearchActive} />
         </div>
       </div>

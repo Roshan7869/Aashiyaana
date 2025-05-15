@@ -27,49 +27,49 @@ interface ListingCardProps {
 
 const getAmenityIcon = (amenity: string) => {
   switch (amenity) {
-    case 'AC': return <Wind size={16} />;
-    case 'Furnished': return <Home size={16} />;
-    case 'WiFi': return <Wifi size={16} />;
-    case '24/7 Water': return <Droplets size={16} />;
-    case 'Independent': return <Home size={16} />;
-    case 'Air Water Cooler': return <Fan size={16} />;
+    case 'AC': return <Wind size={14} />;
+    case 'Furnished': return <Home size={14} />;
+    case 'WiFi': return <Wifi size={14} />;
+    case '24/7 Water': return <Droplets size={14} />;
+    case 'Independent': return <Home size={14} />;
+    case 'Air Water Cooler': return <Fan size={14} />;
     default: return null;
   }
 };
 
 const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
   return (
-    <div className="listing-card group overflow-hidden">
+    <div className="listing-card group">
       <div className="relative">
-        <div className="relative pb-[66.6666%] overflow-hidden rounded-xl">
+        <div className="relative pb-[66.6666%] overflow-hidden rounded-lg">
           <img 
             src={listing.imageUrl} 
             alt={listing.title}
             className="listing-image absolute inset-0 w-full h-full object-cover transition-transform duration-500"
           />
         </div>
-        <button className="absolute top-3 right-3 p-2 text-white hover:text-[#FF5A5F] transition-colors">
+        <button className="absolute top-2 right-2 p-1.5 text-white hover:text-[#FF5A5F] transition-colors">
           <Heart 
-            size={24} 
+            size={20} 
             fill={listing.isFavorite ? "#FF5A5F" : "none"} 
             className={listing.isFavorite ? "text-[#FF5A5F]" : ""}
           />
         </button>
       </div>
       
-      <div className="mt-3">
+      <div className="mt-2">
         <div className="flex justify-between items-start">
-          <h3 className="font-medium text-gray-900">{listing.title}</h3>
-          <div className="flex items-center gap-1">
-            <Star size={16} fill="currentColor" />
-            <span>{listing.rating}</span>
+          <h3 className="font-medium text-gray-900 text-sm">{listing.title}</h3>
+          <div className="flex items-center gap-0.5">
+            <Star size={14} fill="currentColor" />
+            <span className="text-sm">{listing.rating}</span>
           </div>
         </div>
         
-        <p className="text-sm text-gray-500">{listing.location}</p>
-        <p className="text-sm text-gray-500">{listing.distance}</p>
+        <p className="text-xs text-gray-500">{listing.location}</p>
+        <p className="text-xs text-gray-500">{listing.distance}</p>
         
-        <div className="flex gap-2 mt-2">
+        <div className="flex gap-1.5 mt-1.5">
           {listing.amenities.map((amenity, index) => (
             <span key={index} className="text-gray-600" title={amenity}>
               {getAmenityIcon(amenity)}
@@ -77,15 +77,15 @@ const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
           ))}
         </div>
         
-        <div className="mt-2 text-sm text-gray-500">
+        <div className="mt-1.5 text-xs text-gray-500">
           <strong>Rules:</strong> {listing.rules.join(', ')}
         </div>
         
-        <p className="mt-2 font-medium">
+        <p className="mt-1.5 font-medium text-sm">
           ₹{listing.price.toLocaleString('en-IN')} <span className="font-normal">/ month</span>
         </p>
         
-        <button className="mt-3 w-full bg-[#FF5A5F] text-white py-2 rounded-lg hover:bg-[#E00B41] transition-colors">
+        <button className="mt-2 w-full bg-[#FF5A5F] text-white py-1.5 rounded-md hover:bg-[#E00B41] transition-colors text-sm">
           Book Now
         </button>
       </div>
@@ -99,36 +99,28 @@ interface ListingGridProps {
 
 const ListingGrid: React.FC<ListingGridProps> = ({ filters }) => {
   const filteredListings = listings.filter(listing => {
-    // Filter by price
     if (listing.price > filters.priceRange) return false;
-
-    // Filter by area
     if (filters.selectedArea !== "All Areas" && listing.location !== filters.selectedArea) return false;
-
-    // Filter by amenities
     if (filters.amenities.length > 0) {
       const hasAllAmenities = filters.amenities.every(amenity => 
         listing.amenities.includes(amenity)
       );
       if (!hasAllAmenities) return false;
     }
-
-    // Filter by property type
     if (filters.propertyTypes.length > 0 && !filters.propertyTypes.some(type => listing.title.includes(type))) {
       return false;
     }
-
     return true;
   });
 
   return (
-    <div className="container-pad py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Best PGs in Bhilai</h1>
-        <p className="text-gray-600 mt-1">Showing {filteredListings.length} properties in Bhilai</p>
+    <div className="container-pad py-4">
+      <div className="mb-4">
+        <h1 className="text-xl font-bold">Best PGs in Bhilai</h1>
+        <p className="text-sm text-gray-600 mt-0.5">Showing {filteredListings.length} properties in Bhilai</p>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filteredListings.map(listing => (
           <ListingCard key={listing.id} listing={listing} />
         ))}
