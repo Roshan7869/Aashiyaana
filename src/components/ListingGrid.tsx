@@ -1,5 +1,6 @@
 import React from 'react';
 import { Star, Heart, Wifi, Wind, Droplets, Home, Fan } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { listings } from '../data/listings';
 
 interface Filters {
@@ -38,6 +39,12 @@ const getAmenityIcon = (amenity: string) => {
 };
 
 const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
+  const navigate = useNavigate();
+
+  const handleBookNow = () => {
+    navigate('/payment', { state: { listing } });
+  };
+
   return (
     <div className="listing-card group">
       <div className="relative">
@@ -85,7 +92,10 @@ const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
           ₹{listing.price.toLocaleString('en-IN')} <span className="font-normal">/ month</span>
         </p>
         
-        <button className="mt-2 w-full bg-[#FF5A5F] text-white py-1.5 rounded-md hover:bg-[#E00B41] transition-colors text-sm">
+        <button 
+          className="mt-2 w-full bg-[#FF5A5F] text-white py-1.5 rounded-md hover:bg-[#E00B41] transition-colors text-sm"
+          onClick={handleBookNow}
+        >
           Book Now
         </button>
       </div>
