@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Heart, Wifi, Wind, Droplets, Home, Fan } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { fetchedListings } from '../data/listings';
+import { startPollingListings } from '../data/listings'; // Updated import
 import type { Listing } from '../data/spreadsheetData';
 
 interface Filters {
@@ -30,7 +30,9 @@ const getAmenityIcon = (amenity: string) => {
   }
 };
 
-const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
+// Apply React.memo to ListingCard
+const ListingCard: React.FC<ListingCardProps> = React.memo(({ listing }) => {
+  // console.log(`Rendering ListingCard: ${listing.id} - ${listing.title}`); // Keep this commented unless actively debugging card re-renders
   const navigate = useNavigate();
 
   const handleBookNow = () => {
@@ -72,7 +74,6 @@ const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
         
         <div className="flex gap-1.5 mt-1.5">
           {listing.amenities.map((amenity, index) => (
-            // Filter out empty strings from amenities that might result from ';;' or trailing ';'
             amenity && (
               <span key={index} className="text-gray-600" title={amenity}>
                 {getAmenityIcon(amenity)}
@@ -100,7 +101,7 @@ const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
       </div>
     </div>
   );
-};
+}); // End of React.memo for ListingCard
 
 interface ListingGridProps {
   filters: Filters;
@@ -108,26 +109,70 @@ interface ListingGridProps {
 
 const ListingGrid: React.FC<ListingGridProps> = ({ filters }) => {
   const [listingsData, setListingsData] = useState<Listing[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); // Manages initial loading state
   const [error, setError] = useState<string | null>(null);
+  const [showRefreshIndicator, setShowRefreshIndicator] = useState(false);
+  
+  const refreshIndicatorTimeoutId = React.useRef<NodeJS.Timeout | null>(null);
+  const isInitialLoadDoneRef = React.useRef(false); // Ref to track initial load completion
 
   useEffect(() => {
-    console.log('ListingGrid: useEffect triggered. Setting isLoading to true.');
-    setIsLoading(true);
-    fetchedListings
-      .then(data => {
-        console.log('ListingGrid: fetchedListings resolved. Data (first 2):', data.slice(0, 2));
+    console.log('ListingGrid: Main useEffect for polling setup triggered.');
+    
+    // Set loading true for the very first setup.
+    // This ensures "Loading listings..." is shown initially.
+    if (!isInitialLoadDoneRef.current) {
+        setIsLoading(true);
+    }
+
+    const poller = startPollingListings(
+      (data) => { // Success callback for new data
+        console.log('ListingGrid: Polling success callback. Data (first 2):', data.slice(0, 2));
+        
+        if (isInitialLoadDoneRef.current) { // Show refresh indicator only AFTER initial load has completed
+          console.log(`ListingGrid: Refresh Indicator - Initial load done. Current showRefreshIndicator state (before update): ${showRefreshIndicator}`); // This will log the current state, not the pending one.
+          setShowRefreshIndicator(true);
+          console.log(`ListingGrid: Refresh Indicator - setShowRefreshIndicator(true) called.`);
+          if (refreshIndicatorTimeoutId.current) {
+            clearTimeout(refreshIndicatorTimeoutId.current);
+          }
+          refreshIndicatorTimeoutId.current = setTimeout(() => {
+            console.log('ListingGrid: Refresh Indicator - Hiding via setTimeout.');
+            setShowRefreshIndicator(false);
+          }, 2500);
+        }
+        
         setListingsData(data);
-        console.log('ListingGrid: isLoading state transition to false (data fetched).');
-        setIsLoading(false);
-      })
-      .catch(err => {
-        console.error("ListingGrid: Error fetching listings:", err);
-        setError("Failed to load listings. Please try again later.");
-        console.log('ListingGrid: isLoading state transition to false (error caught).');
-        setIsLoading(false);
-      });
-  }, []);
+        
+        if (!isInitialLoadDoneRef.current) {
+          setIsLoading(false); // Set loading to false only once after the first successful data fetch
+          isInitialLoadDoneRef.current = true;
+          console.log('ListingGrid: Initial load complete. isLoading set to false.');
+        }
+        if (error) setError(null); // Clear any previous error if data is successfully fetched
+      },
+      (initialError) => { // Error callback for initial fetch
+        console.error("ListingGrid: Initial fetch error from polling:", initialError);
+        setError("Failed to load initial listings. Please try again later or check your connection.");
+        if (!isInitialLoadDoneRef.current) {
+            setIsLoading(false); // Set loading to false on initial error
+            isInitialLoadDoneRef.current = true; // Mark initial load attempt as done
+            console.log('ListingGrid: Initial load failed. isLoading set to false.');
+        }
+      }
+    );
+
+    // Cleanup function to stop polling and clear any pending timeout
+    return () => {
+      console.log('ListingGrid: Unmounting. Stopping polling.');
+      poller.stop();
+      if (refreshIndicatorTimeoutId.current) {
+        clearTimeout(refreshIndicatorTimeoutId.current);
+      }
+      // Do NOT reset isInitialLoadDoneRef.current here if you want the "Loading listings..."
+      // not to show on fast refresh in development. For a true remount, it would be false anyway.
+    };
+  }, []); // Empty dependency array ensures this effect runs only once on mount and unmount
 
   const filteredListings = listingsData.filter(listing => {
     if (listing.price > filters.priceRange) return false;
@@ -138,14 +183,13 @@ const ListingGrid: React.FC<ListingGridProps> = ({ filters }) => {
       );
       if (!hasAllAmenities) return false;
     }
-    // Assuming propertyTypes filter logic needs to check against title or other fields
     if (filters.propertyTypes.length > 0 && !filters.propertyTypes.some(type => listing.title.toLowerCase().includes(type.toLowerCase()))) {
       return false;
     }
     return true;
   });
 
-  if (isLoading) {
+  if (isLoading) { // This 'isLoading' is primarily for the initial load
     return <div className="container-pad py-4 text-center">Loading listings...</div>;
   }
 
@@ -156,7 +200,10 @@ const ListingGrid: React.FC<ListingGridProps> = ({ filters }) => {
   return (
     <div className="container-pad py-4">
       <div className="mb-4">
-        <h1 className="text-xl font-bold">Best PGs in Bhilai</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-xl font-bold">Best PGs in Bhilai</h1>
+          {showRefreshIndicator && <span className="text-sm text-green-600 animate-pulse">Updating listings...</span>}
+        </div>
         <p className="text-sm text-gray-600 mt-0.5">
           {filteredListings.length > 0
             ? `Showing ${filteredListings.length} properties in Bhilai`
