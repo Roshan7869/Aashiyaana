@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, Heart, Wifi, Wind, Droplets, Home, Fan } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { listings } from '../data/listings';
+import { fetchedListings } from '../data/listings';
+import type { Listing } from '../data/spreadsheetData';
 
 interface Filters {
   amenities: string[];
@@ -11,16 +12,7 @@ interface Filters {
 }
 
 interface ListingCardProps {
-  listing: {
-    id: number;
-    imageUrl: string;
-    title: string;
-    location: string;
-    distance: string;
-    amenities: string[];
-    price: number;
-    rating: number;
-    rules: string[];
+  listing: Listing & { // Combine Listing with optional UI-specific fields
     isFavorite?: boolean;
     isTopRated?: boolean;
   };
@@ -67,10 +59,12 @@ const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
       <div className="mt-2">
         <div className="flex justify-between items-start">
           <h3 className="font-medium text-gray-900 text-sm">{listing.title}</h3>
-          <div className="flex items-center gap-0.5">
-            <Star size={14} fill="currentColor" />
-            <span className="text-sm">{listing.rating}</span>
-          </div>
+          {!isNaN(listing.rating) ? (
+            <div className="flex items-center gap-0.5">
+              <Star size={14} fill="currentColor" />
+              <span className="text-sm">{listing.rating}</span>
+            </div>
+          ) : null}
         </div>
         
         <p className="text-xs text-gray-500">{listing.location}</p>
@@ -78,18 +72,23 @@ const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
         
         <div className="flex gap-1.5 mt-1.5">
           {listing.amenities.map((amenity, index) => (
-            <span key={index} className="text-gray-600" title={amenity}>
-              {getAmenityIcon(amenity)}
-            </span>
+            // Filter out empty strings from amenities that might result from ';;' or trailing ';'
+            amenity && (
+              <span key={index} className="text-gray-600" title={amenity}>
+                {getAmenityIcon(amenity)}
+              </span>
+            )
           ))}
         </div>
         
         <div className="mt-1.5 text-xs text-gray-500">
-          <strong>Rules:</strong> {listing.rules.join(', ')}
+          <strong>Rules:</strong> {listing.rules.filter(rule => rule).join(', ')}
         </div>
         
         <p className="mt-1.5 font-medium text-sm">
-          ₹{listing.price.toLocaleString('en-IN')} <span className="font-normal">/ month</span>
+          {!isNaN(listing.price) 
+            ? `₹${listing.price.toLocaleString('en-IN')} / month`
+            : "Price not available"}
         </p>
         
         <button 
@@ -108,33 +107,75 @@ interface ListingGridProps {
 }
 
 const ListingGrid: React.FC<ListingGridProps> = ({ filters }) => {
-  const filteredListings = listings.filter(listing => {
+  const [listingsData, setListingsData] = useState<Listing[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    console.log('ListingGrid: useEffect triggered. Setting isLoading to true.');
+    setIsLoading(true);
+    fetchedListings
+      .then(data => {
+        console.log('ListingGrid: fetchedListings resolved. Data (first 2):', data.slice(0, 2));
+        setListingsData(data);
+        console.log('ListingGrid: isLoading state transition to false (data fetched).');
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error("ListingGrid: Error fetching listings:", err);
+        setError("Failed to load listings. Please try again later.");
+        console.log('ListingGrid: isLoading state transition to false (error caught).');
+        setIsLoading(false);
+      });
+  }, []);
+
+  const filteredListings = listingsData.filter(listing => {
     if (listing.price > filters.priceRange) return false;
     if (filters.selectedArea !== "All Areas" && listing.location !== filters.selectedArea) return false;
     if (filters.amenities.length > 0) {
-      const hasAllAmenities = filters.amenities.every(amenity => 
+      const hasAllAmenities = filters.amenities.every(amenity =>
         listing.amenities.includes(amenity)
       );
       if (!hasAllAmenities) return false;
     }
-    if (filters.propertyTypes.length > 0 && !filters.propertyTypes.some(type => listing.title.includes(type))) {
+    // Assuming propertyTypes filter logic needs to check against title or other fields
+    if (filters.propertyTypes.length > 0 && !filters.propertyTypes.some(type => listing.title.toLowerCase().includes(type.toLowerCase()))) {
       return false;
     }
     return true;
   });
 
+  if (isLoading) {
+    return <div className="container-pad py-4 text-center">Loading listings...</div>;
+  }
+
+  if (error) {
+    return <div className="container-pad py-4 text-center text-red-500">{error}</div>;
+  }
+
   return (
     <div className="container-pad py-4">
       <div className="mb-4">
         <h1 className="text-xl font-bold">Best PGs in Bhilai</h1>
-        <p className="text-sm text-gray-600 mt-0.5">Showing {filteredListings.length} properties in Bhilai</p>
+        <p className="text-sm text-gray-600 mt-0.5">
+          {filteredListings.length > 0
+            ? `Showing ${filteredListings.length} properties in Bhilai`
+            : "No properties found matching your criteria."}
+        </p>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filteredListings.map(listing => (
-          <ListingCard key={listing.id} listing={listing} />
-        ))}
-      </div>
+      {filteredListings.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filteredListings.map(listing => (
+            <ListingCard key={listing.id} listing={listing} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-10">
+          <p className="text-lg text-gray-500">No listings match your current filters.</p>
+          <p className="text-sm text-gray-400">Try adjusting your search criteria.</p>
+        </div>
+      )}
     </div>
   );
 };
