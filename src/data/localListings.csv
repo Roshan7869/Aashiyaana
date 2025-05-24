@@ -1,0 +1,21 @@
+id,imageUrl,title,location,distance,amenities,price,rating,rules
+1,https://example.com/image1.jpg,Cozy Mountain Cabin,Aspen, CO,5 miles,WiFi;Fireplace;HotTub,150,4.8,No smoking;No pets
+2,https://example.com/image2.jpg,Beachfront Villa,Malibu, CA,2 miles,Pool;BeachAccess;Kitchen,300,4.9,No parties;Check-in after 3PM
+3,https://example.com/image3.jpg,Urban Loft,Chicago, IL,1 mile,WiFi;Gym;Parking,120,4.5,No smoking;Respect neighbors
+4,https://example.com/image4.jpg,Lakeside Retreat,Lake Tahoe, NV,8 miles,Kayaks;Firepit;BBQ,200,4.7,No pets;Max 6 guests
+5,https://example.com/image5.jpg,Downtown Studio,Austin, TX,0.5 miles,WiFi;AC;CoffeeMaker,90,4.3,No parties;Quiet after 10PM
+6,https://example.com/image6.jpg,Forest Bungalow,Portland, OR,12 miles,HikingTrails;Fireplace;WiFi,130,4.6,No smoking;Clean dishes
+7,https://example.com/image7.jpg,Luxury Penthouse,Miami, FL,3 miles,Pool;Gym;Concierge,400,5.0,No pets;Check-out by 11AM
+8,https://example.com/image8.jpg,Countryside Farmhouse,Nashville, TN,15 miles,Garden;BBQ;Parking,180,4.4,No parties;Respect property
+9,https://example.com/image9.jpg,Modern Condo,Seattle, WA,2 miles,WiFi;Balcony;Kitchen,160,4.7,No smoking;No loud music
+10,https://example.com/image10.jpg,Desert Oasis,Tucson, AZ,10 miles,Pool;Firepit;AC,220,4.8,No pets;Water conservation
+11,https://example.com/image11.jpg,City Apartment,Boston, MA,1.5 miles,WiFi;Laundry;Parking,140,4.5,No smoking;Check-in after 2PM
+12,https://example.com/image12.jpg,Mountain Chalet,Denver, CO,20 miles,SkiAccess;Fireplace;HotTub,250,4.9,No parties;Max 8 guests
+13,https://example.com/image13.jpg,Coastal Cottage,Cape Cod, MA,4 miles,BeachAccess;Kitchen;BBQ,190,4.6,No pets;Quiet after 9PM
+14,https://example.com/image14.jpg,Urban Townhouse,San Francisco, CA,3 miles,WiFi;Garage;Gym,280,4.8,No smoking;Respect neighbors
+15,https://example.com/image15.jpg,Lakeside Cabin,Minneapolis, MN,7 miles,Canoe;Firepit;WiFi,170,4.4,No parties;Clean up after BBQ
+16,https://example.com/image16.jpg,Historic Inn Room,Savannah, GA,0.8 miles,Breakfast;WiFi;AC,110,4.7,No smoking;Check-out by 10AM
+17,https://example.com/image17.jpg,Ski Lodge Suite,Park City, UT,6 miles,SkiStorage;HotTub;Fireplace,230,4.9,No pets;Max 4 guests
+18,https://example.com/image18.jpg,Tropical Bungalow,Key West, FL,3 miles,Pool;Bikes;Kitchen,260,4.8,No parties;Respect garden
+19,https://example.com/image19.jpg,Rustic Cabin,Gatlinburg, TN,9 miles,Fireplace;HikingTrails;BBQ,140,4.5,No smoking;No pets
+20,https://example.com/image20.jpg,Luxury Beach House,Santa Monica, CA,2 miles,Pool;OceanView;Concierge,450,5.0,No parties;Check-in after 4PM
