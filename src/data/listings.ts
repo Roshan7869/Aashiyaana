@@ -1,4 +1,5 @@
 import { fetchListingsFromSheet, fetchListingsFromLocalCsv, Listing } from './spreadsheetData';
+import { getUserListings } from './userListings'; // Added import
 
 const USE_LOCAL_CSV = true; // Set to true to use local CSV, false for Google Sheets
 
@@ -44,20 +45,28 @@ export function startPollingListings(
     }
 
     try {
-      const listings = await listingsPromise;
-      const currentDataStringified = JSON.stringify(listings);
+      const baseListings = await listingsPromise;
+      const userAddedListings = getUserListings();
+
+      // Combine listings: primary source first, then user-added ones.
+      // User-added listings have negative IDs, so they won't clash if base IDs are positive.
+      const combinedListings = [...baseListings, ...userAddedListings];
+
+      console.log(`Polling: Fetched ${baseListings.length} base listings, ${userAddedListings.length} user listings. Total: ${combinedListings.length}`);
+
+      const currentDataStringified = JSON.stringify(combinedListings); // Use combined listings for change detection
 
       if (!initialFetchDone) { // This covers the very first fetch, regardless of isInitialFetch flag for subsequent logic
         initialFetchDone = true;
         previousDataStringified = currentDataStringified;
-        console.log(`Polling (Initial, Source: ${source}): Initial data fetched and callback triggered.`);
-        callback(listings);
+        console.log(`Polling (Initial, Source: ${source}): Initial data fetched (including user listings) and callback triggered.`);
+        callback(combinedListings);
       } else if (currentDataStringified !== previousDataStringified) {
         previousDataStringified = currentDataStringified;
-        console.log(`Polling (Cycle ${pollCount}, Source: ${source}): Data updated and callback triggered.`);
-        callback(listings);
+        console.log(`Polling (Cycle ${pollCount}, Source: ${source}): Data updated (including user listings) and callback triggered.`);
+        callback(combinedListings);
       } else {
-        console.log(`Polling (Cycle ${pollCount}, Source: ${source}): Data unchanged.`);
+        console.log(`Polling (Cycle ${pollCount}, Source: ${source}): Data unchanged (including user listings).`);
       }
     } catch (error) {
       console.error(`Polling (${isInitialFetch ? 'Initial' : `Cycle ${pollCount}`}, Source: ${source}): Error fetching data:`, error);

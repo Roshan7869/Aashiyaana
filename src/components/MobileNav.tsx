@@ -28,7 +28,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
               <LogIn size={24} className="mr-4" />
               <span className="font-medium">Log in</span>
             </a>
-            <a href="#" className="flex items-center py-3 border-b border-gray-100">
+            <a href="/add-property" className="flex items-center py-3 border-b border-gray-100" onClick={onClose}>
               <Plus size={24} className="mr-4" />
               <span className="font-medium">List your space</span>
             </a>

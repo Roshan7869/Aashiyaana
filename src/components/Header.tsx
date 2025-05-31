@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Search, Globe, Menu, User } from 'lucide-react';
 import Logo from './Logo';
 import SearchBar from './SearchBar';
@@ -39,6 +40,9 @@ const Header: React.FC<HeaderProps> = ({ scrolled, toggleMobileMenu }) => {
           </div>
           
           <div className="flex items-center gap-1.5">
+            <Link to="/add-property" className="hidden md:flex items-center rounded-full px-3 py-1.5 text-xs font-medium hover:bg-gray-100 transition-colors">
+              List your property
+            </Link>
             <button className="hidden md:flex items-center rounded-full border px-2 py-1 hover:shadow-sm transition-shadow">
               <Globe size={14} className="mr-1" />
               <span className="text-xs">EN</span>
