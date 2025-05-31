@@ -1,30 +1,45 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addUserListing } from '../data/userListings'; // Assuming this path is correct
-import type { Listing } from '../data/spreadsheetData'; // Assuming this path is correct
+import { addUserListing } from '../data/userListings';
+import type { Listing } from '../data/spreadsheetData';
 
 const AddPropertyPage: React.FC = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageBase64, setImageBase64] = useState<string | null>(null); // For storing Data URL
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null); // For preview <img> tag
   const [price, setPrice] = useState('');
   const [amenities, setAmenities] = useState(''); // Comma-separated
   const [rules, setRules] = useState(''); // Comma-separated
   const [distance, setDistance] = useState('');
-  // Rating can be optional or have a default, not included in form for simplicity here
-  // Or add it if simple: const [rating, setRating] = useState('');
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const resultStr = reader.result as string;
+        setImageBase64(resultStr); // This is the Data URL string
+        setImagePreviewUrl(resultStr);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImageBase64(null);
+      setImagePreviewUrl(null);
+    }
+  };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
     setSuccess(null);
 
-    if (!title || !location || !imageUrl || !price || !amenities || !rules || !distance) {
-      setError('Please fill in all fields.');
+    if (!title || !location || !imageBase64 || !price || !amenities || !rules || !distance) {
+      setError('Please fill in all fields, including selecting an image.');
       return;
     }
 
@@ -34,18 +49,12 @@ const AddPropertyPage: React.FC = () => {
       return;
     }
 
-    // Basic image URL validation (starts with http/https)
-    if (!imageUrl.match(/^https?:\/\/.+/)) {
-        setError('Please enter a valid image URL (starting with http:// or https://).');
-        return;
-    }
-
-    // For simplicity, rating is hardcoded or can be made dynamic
-    // User-added properties might not have a community rating initially
+    // imageBase64 is the Data URL string (e.g., "data:image/jpeg;base64,...")
+    // This will be used as the imageUrl for the listing.
     const newListingData: Omit<Listing, 'id'> = {
       title,
       location,
-      imageUrl,
+      imageUrl: imageBase64, // Using the Base64 Data URL string here
       price: priceNum,
       amenities: amenities.split(',').map(a => a.trim()).filter(a => a),
       rules: rules.split(',').map(r => r.trim()).filter(r => r),
@@ -83,9 +92,27 @@ const AddPropertyPage: React.FC = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-          <input type="url" id="imageUrl" value={imageUrl} onChange={e => setImageUrl(e.target.value)} required className="w-full p-2 border border-gray-300 rounded-md shadow-sm" placeholder="https://example.com/image.jpg" />
+          <label htmlFor="imageFile" className="block text-sm font-medium text-gray-700 mb-1">Property Image</label>
+          <input
+            type="file"
+            id="imageFile"
+            accept="image/*"
+            capture="environment"
+            onChange={handleImageChange}
+            required
+            className="w-full p-1.5 border border-gray-300 rounded-md shadow-sm focus:ring-[#FF5A5F] focus:border-[#FF5A5F] text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-[#FF5A5F] hover:file:bg-pink-100"
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            Note: Images are stored locally in your browser. Uploading many large images may exceed browser storage limits.
+          </p>
         </div>
+
+        {imagePreviewUrl && (
+          <div className="mt-2 mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Image Preview</label>
+            <img src={imagePreviewUrl} alt="Image preview" className="max-w-xs w-full h-auto border rounded-md shadow-sm object-contain" style={{ maxHeight: '200px' }} />
+          </div>
+        )}
 
         <div className="mb-4">
           <label htmlFor="distance" className="block text-sm font-medium text-gray-700 mb-1">Distance (e.g., '2km from center')</label>
